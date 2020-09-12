@@ -1,6 +1,6 @@
-# Defines a Stock Class that gives you access to many technical analysis functions
+# Defines a Stock Class with many Technical Analysis Functions
 
-## So far it includes:
+## So Far It Includes:
   * Price Over Time
   * Weekly Returns
   * GBM Monte Carlo 

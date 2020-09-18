@@ -18,6 +18,9 @@ This is a package made up of Stock and Portfolio Objects, that give you access t
    * It loads Stock Objects based on all tickers given, and holds an overall balance
 * All functions that come with the stock object can be used on individual stocks within the portfolio
 
+----
+## File Contents
+
 stock_class.py holds the Stock and Portfolio Objects
 
 fin_statements.py is a header file for the stock_class object file, that provides the financial statement webscraping for fundamental analysis

@@ -245,7 +245,11 @@ def get_y_count(daterange, begin_range, end_range):
         return 1 + get_y_count(daterange, begin_range, end_range)
 
 #     Graph Weekly Return Data         
-def plot_Graph(daterange, graph_Data, ticker, max_value, min_value):
+def plot_weekly_returns(weekly_returns, ticker):
+    
+    daterange = list(weekly_returns['date'])
+    graph_Data = list(weekly_returns['returns'])
+    max_value, min_value = int(max(graph_Data)), int(min(graph_Data))
     
     y_count = get_y_count(len(daterange), 0, 5)
     

@@ -12,7 +12,6 @@ This is a package made up of Stock and Portfolio Objects, that give you access t
     ----  These are webscraped from Yahoo Finance and can be exported to CSV
 * OLS Regression Against S&P / Beta Calculation Using Covariance Over Variance
 * Convert Summary Statistics and Basic Info to JSON variable, export it, save it, print it
-* 
   
 ## So Far For Portfolios It Includes:
 * Creating a Portfolio Object full of Stock Objects, from a list of tickers and portfolio weights

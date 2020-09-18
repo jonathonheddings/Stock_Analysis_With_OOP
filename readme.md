@@ -1,7 +1,7 @@
 # Defines a Stock and Portfolio Class with many Technical Analysis Functions
 
 ## So Far For Stocks It Includes:
-Graphing 
+* Graphing 
     * Price Over Time
     * Weekly Returns
     * GBM Monte Carlo Price Simulation Over Time

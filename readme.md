@@ -1,6 +1,6 @@
 # Defines a Stock and Portfolio Class with Technical / Fundamental Analysis Functions
 
-This is a package made up of Stock and Portfolio Objects, that give you access to many stock data manipulating functions, making technical and fundamental analysis a breeze.
+This is a package made up of Stock and Portfolio Objects, that give you access to many stock data manipulating functions, making technical and fundamental analysis a breeze. It is a work in progress.
 
 ------
 

@@ -12,3 +12,7 @@
 * Convert Summary Statistics and Basic Info to JSON variable, export it, save it, print it
 * 
   
+## So Far For Portfolios It Includes:
+* Creating a Portfolio Object full of Stock Objects, from a list of tickers and portfolio weights
+   * It loads Stock Objects based on all tickers given, and holds an overall balance
+* All functions that come with the stock object can be used on individual stocks within the portfolio

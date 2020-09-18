@@ -9,7 +9,7 @@ This is a package made up of Stock and Portfolio Objects, that give you access t
     * GBM Monte Carlo Price Simulation Over Time
     * Rolling Averages
 * Income Statement, Balance Sheet, Statement of Cash Flows, and Valuation Analysis
-    ----These are webscraped from Yahoo Finance and can be exported to CSV
+    ----  These are webscraped from Yahoo Finance and can be exported to CSV
 * OLS Regression Against S&P / Beta Calculation Using Covariance Over Variance
 * Convert Summary Statistics and Basic Info to JSON variable, export it, save it, print it
 * 

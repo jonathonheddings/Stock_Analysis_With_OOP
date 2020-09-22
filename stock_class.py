@@ -1,18 +1,18 @@
-import timeit, json, datetime
+import timeit, json, datetime, math, random, datetime
 import pandas as pd
 import numpy as np
-import datetime
 from scipy.stats import norm
 import matplotlib.pyplot as plt
 from pandas_datareader import data as wb
 import FinanceFunctions as finance
 import fin_statements as stmt
-import math
-
+ 
 # Initialize Some Practice START and END dates
 START = '2015-09-17'
 END = '2020-09-17'
 
+
+########### STOCK ############
 # Defines the Stock class that gives you access to many technical analysis functions
 #
 class Stock():
@@ -20,7 +20,7 @@ class Stock():
     # Initializes the class, assigns the ticker and the date range for the data
     #  
     def __init__(self, ticker, startdate='1970-01-01', enddate=datetime.date.today().strftime('%Y-%m-%d')):
-        
+
         # Init ticker, beta, covariance with S&P, and daterange
         self.ticker = ticker
         self.start_date = startdate
@@ -28,7 +28,7 @@ class Stock():
         self.alpha = 0
         self.beta = 0
         self.covariance = 0
-        
+
         # Init dataframes to hold data
         self.data = self.get_data(self.start_date, self.end_date)
         self.stock_returns = pd.DataFrame()
@@ -42,8 +42,13 @@ class Stock():
         # Init the json dictionary to hold data
         self.json_dict = {'Ticker': self.ticker, 'Current Price': float('{0:.2f}'.format(self.data['Adj Close'][self.data.index[-1].strftime('%Y-%m-%d')]))}
         self.json_dict['Start Date Price'] = float('{0:.2f}'.format(self.data['Adj Close'][self.data.index[0].strftime('%Y-%m-%d')])) 
-        
-        
+     
+     
+    # Defines the representation of the object for the intepreter   
+    def __repr__(self):
+        return "Stock('%s')" % (self.ticker)
+
+    
     #  Fetches the stocks Open, High, Low, Close, Adj Close data for the given time period
     #        is done on initialization, but can be recalled for new ranges of data
     #
@@ -160,7 +165,7 @@ class Stock():
         if mode == 'p':
             dump = json.dumps(self.json_dict, indent=4)
             print(dump)
-
+            
     # Pulls the different financial statements from the Yahoo Finance webpages, this can be inconsistent sometimes
     #
     def get_statement(self, statement):
@@ -219,7 +224,7 @@ class Stock():
         # Calculates Returns over certain period of time
         stock_returns = stock_data['Adj Close'].pct_change(freq='M')[1:] * 100
         benchmark_returns = benchmark_data['Adj Close'].pct_change(freq='M')[1:] * 100
-        
+
         # Cleans out the list of any NaN values
         stock_ls = []
         benchmark_ls = []
@@ -256,24 +261,27 @@ class Stock():
             plt.ylabel(str(self.ticker) + ' Monthly Returns')
             plt.title("Monthly Returns Regression: " + self.ticker + " over " + benchmark + "      ---------      From: " + start_date + " to " + end_date)
             plt.show()
-            
+
         return self.beta
         
+
+##########  PORTFOLIO ###########
+# This is an object that defines a portfolio of stocks, you can add and subtract stocks, readjust their weightings, or run calculations on the data        
+#
 class Portfolio():
     
     def __init__(self, ticker_list, startdate='1970-01-01', enddate=datetime.date.today().strftime('%Y-%m-%d'), init_balance=0):
         
         # Init tickers. Ticker list needs to have the ticker and proportion together [ ['SPY', 0.5] , ['VTI' , 0.3] , ['MSFT', 0.2] ]
-        self.ticker_list = ticker_list
         self.stock_objects = []
-        for stock in self.ticker_list:
+        for stock in ticker_list:
             self.buffer_list = []
             self.buffer_list.append(Stock(str(stock[0]), START, END))
             self.stock_objects.append(self.buffer_list)
         
-        # This is the main Portfolio variable, it holds a list with rows of the format: [ ticker, portfolio_weight, Stock Object ]
-           
-        self.portfolio = np.concatenate([self.ticker_list, self.stock_objects], axis=1)
+        # This is the main Portfolio variable, it holds a list with rows of the format: [ ticker, portfolio_weight, Stock Object ]  
+        self.portfolio = np.concatenate([ticker_list, self.stock_objects], axis=1)
+        self.stock_count = self.portfolio.shape[1]
         
         # Start and End Dates, Beta, and Balance Init
         self.start_date = startdate
@@ -285,11 +293,118 @@ class Portfolio():
         self.weekly_returns = pd.DataFrame()
         self.rolling_avg = pd.DataFrame()
         self.yearly_returns = pd.DataFrame()
+        if not self.check_weighting():
+            print("ERROR: The given weightings does not add to 100%")
+            print(self.portfolio[:,1]) # Prints Weights
+    
+    # Defines the representation for the Object to the interpreter
+    def __repr__(self):
+        return "Portfolio('Balance: $%r', 'Number Of Stocks: %r')" % (self.balance, self.stock_count)
+    
+    # Allows the object to be used as a iterable
+    def __getitem__(self, position):
+        return self.portfolio[position, 2]
+    
+    # Gives the number of stocks in the portfolio
+    def __len__(self):
+        return self.portfolio.shape[1]
+    
+    
+    # Just updates the count, for internal methods
+    def update_num_stocks(self):
+        self.stock_count = len(self)
         
+    # This method will take a vertical list of the same number of stocks as your portfolio, and adds it to the right of the portfolio
+    def add_category_to_portfolio (self, list_item):
+        self.portfolio = np.concatenate([self.portfolio, list_item], axis=1)
+
+    # Returns a value of true if the weighting adds up to 100%
+    def check_weighting(self):
+        total = 0.0000
+        for row in self.portfolio:
+            total += float(row[1])
+        return np.isclose(1.0, total)
+ 
+    
+    # These function is used to add a stock onto the portfolio, it accepts a ticker and a weighting, 
+    #                   currently only around 10 stocks can be added due to floating point error of the weightings (This will be updated)
+    def add_stock(self, stock_ticker, weight, mode='equal'):
+        
+        buffer_list = [stock_ticker, float('{0:.12f}'.format(weight)), Stock(stock_ticker, self.start_date, self.end_date)]
+        self.add_weight(buffer_list[1], mode)
+
+        self.portfolio = np.vstack([self.portfolio, buffer_list])
+        if not self.check_weighting():
+            print("Error: Weights Do Not Add to 100%") 
+
+            
+    # This method is used to readjust the weights for when a stock is added, it is a work in progress and cannot currently handle more than a few stocks
+    #                                                                                                                       due to floating point error
+    def add_weight(self, weight, mode="equal"):
+        
+        factor = 10000000.0
+        
+        if mode == 'equal':
+            
+            # Creates a New List adding the new value and scaling down proportionally the old values and then scaling
+            #                   all numbers up by a factor of ten for floating point issues
+            new_list = [round(float(val) * float(factor - (factor * weight))) for val in self.portfolio[:,1]]
+            new_list.append(round(float(weight) * factor))
+            counter = len(new_list) - 1
+            
+            # Calculates the error difference of the expected and actual totals
+            difference = sum(new_list) - factor
+
+
+            # This section is designed to adjust for rounding errors by making sure everything adds up to 100% evenly. It definitely needs some attention
+            #       The if block checks to see if the difference can be evenly spread to all the other members of the list, it also checks if the difference
+            #                 is zero. The else block handles an uneven division using floor division and randomly assigned remainder
+            #
+            if difference != 0:
+                if difference % (counter) == 0:
+                    for num in range(0, len(new_list) - 1):
+                        new_list[num] -= difference / (counter)
+                else:
+
+                    floor_div = difference // counter
+                    diff_of_difference = difference - (counter * floor_div)
+
+                    for num in range(0, len(new_list) - 1):
+                        new_list[num] -= floor_div
+                        new_list[num] = float('{0:.12f}'.format(float(new_list[num])))
+
+                    rand_int = random.randint(0, counter - 1)
+                    new_list[rand_int] -= float('{0:.12f}'.format(float(diff_of_difference)))
+                    new_list[rand_int] = float('{0:.12f}'.format(new_list[rand_int]))
+
+            # Divides out the factor of 10 from the weights so the output is a decimal
+            counter = 0
+            for weights in self.portfolio[:,1]: 
+                self.portfolio[counter, 1] = float('{0:.12f}'.format(float(new_list[counter]) / factor))
+                counter += 1
+    
+    
+    # This function is used to subtract a stock from a portfolio, it accepts either a ticker or a stock object
+    #
+    def subtract_stock(self, stock, mode="equal"):
+        if stock == str(stock):
+            ticker = stock
+        else:
+            ticker = stock.ticker
+                    
+                
+    # A function to subtract a weight and readjust the other weights proportionally
+    def subtract_weight(self, mode, weight):
+        print("Coming Soon")
+
 
 # Test Variables
 msft = Stock('MSFT', START, END)
 msft.get_beta(plot=False)
 
 portfolio_list = [ ['SPY', 0.5] , ['VTI' , 0.3] , ['MSFT', 0.2] ]
+
 port_1 = Portfolio(portfolio_list)
+port_1.balance = 500100
+port_1.add_stock('SPY', 0.2)
+print(port_1.portfolio)

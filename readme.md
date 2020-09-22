@@ -19,8 +19,8 @@ This is a package made up of Stock and Portfolio Objects, that give you access t
 * Creating a Portfolio Object full of Stock Objects, from a list of tickers and portfolio weights
    * It loads Stock Objects based on all tickers given, and holds an overall balance
 * Adding Stocks and readjusting weightings to compensate
-* __getitem__() allows the portfolio to be treated as an iterable. Index or iterate through the Stock Objects within the portfolio
-   * Also, __len__() or len(portfolio_object) returns the number of stocks
+* \_\_getitem\_\_() allows the portfolio to be treated as an iterable, the stocks inside it can also be indexed and sliced with portfolio_object[a:b]
+   * Also, \_\_len\_\_() or len(portfolio_object) returns the number of stocks
 * All functions that come with the stock object can be used on individual stocks within the portfolio
 
 ----

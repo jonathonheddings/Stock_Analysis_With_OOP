@@ -18,12 +18,15 @@ This is a package made up of Stock and Portfolio Objects, that give you access t
 ## So Far For Portfolios It Includes:
 * Creating a Portfolio Object full of Stock Objects, from a list of tickers and portfolio weights
    * It loads Stock Objects based on all tickers given, and holds an overall balance
+* Adding Stocks and readjusting weightings to compensate
+* __getitem__() allows the portfolio to be treated as an iterable. Index or iterate through the Stock Objects within the portfolio
+   * Also, __len__() or len(portfolio_object) returns the number of stocks
 * All functions that come with the stock object can be used on individual stocks within the portfolio
 
 ----
 ## File Contents
 
-stock_class.py holds the Stock and Portfolio Objects
+stock_class.py holds the Stock and Portfolio Object Classes and all their methods
 
 fin_statements.py is a header file for the stock_class object file, that provides the financial statement webscraping for fundamental analysis
 

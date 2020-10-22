@@ -168,7 +168,7 @@ class Stock():
             
     # Pulls the different financial statements from the Yahoo Finance webpages, this can be inconsistent sometimes
     #
-    def get_statement(self, statement):
+    def statement(self, statement):
 
         # Pulls the data for each type of statement
         if statement == 'income':
@@ -191,7 +191,7 @@ class Stock():
             
     # Pull financial statements if they haven't been already and save the files to a csv.
     #
-    def statement_to_csv(self, filename="fin_statements.csv"):
+    def statement_csv(self, filename="fin_statements.csv"):
         
         # Pull statement data if it doesn't exist
         if self.balance_sheet.empty or self.income_stmt.empty or self.cashflow.empty or self.valuation.empty:
@@ -215,7 +215,7 @@ class Stock():
     # Gets 5 Year Beta Value against SPY using a Monthly Returns Interval, uses Econometric Regression Coefficients not CAPM Model
     #
     def get_beta(self, start_date=(datetime.date.today() - datetime.timedelta(days=1825)).strftime('%Y-%m-%d'), 
-                 end_date=datetime.date.today().strftime('%Y-%m-%d'), freq='M', plot=True, benchmark='SPY'):
+                 end_date=datetime.date.today().strftime('%Y-%m-%d'), freq='M', plot=False, benchmark='SPY'):
         
         # Pulls Stock Data for the Period: Even if you've already pulled data, it does it again in case the dates aren't the same
         stock_data = wb.DataReader(self.ticker, data_source="yahoo", start=start_date, end=end_date)
@@ -232,7 +232,7 @@ class Stock():
             if not(math.isnan(stock_returns[data])):
                 stock_ls.append(stock_returns[data])
             if not(math.isnan(benchmark_returns[data])):
-                 benchmark_ls.append(benchmark_returns[data])
+                benchmark_ls.append(benchmark_returns[data])
         return_arrary = np.stack((stock_ls, benchmark_ls), axis=0)
         
         # Calculates Variance of the Stock, Covariance of the Stock and a Benchmark, beta, alpha, and an error term
@@ -241,7 +241,7 @@ class Stock():
         self.beta = float('{0:.4f}'.format(self.covariance / variance))
         self.alpha = benchmark_returns.mean() - (self.beta * stock_returns.mean())
         self.json_dict['Beta (OLS Regression)'] = self.beta
-        self.json_dict['Covariance with S&P 500'] = self.covariance
+        self.json_dict['Covariance with Benchmark'] = self.covariance
         
         # Plot the Stock Returns over the benchmark Returns with the regression line
         if plot == True:
@@ -398,13 +398,15 @@ class Portfolio():
         print("Coming Soon")
 
 
-# Test Variables
-msft = Stock('MSFT', START, END)
-msft.get_beta(plot=False)
+# Test Code
+if __name__ == "__main__":
+    msft = Stock('MSFT', START, END)
+    msft.get_beta(plot=False)
 
-portfolio_list = [ ['SPY', 0.5] , ['VTI' , 0.3] , ['MSFT', 0.2] ]
+    print(msft.statement('income'))
+    portfolio_list = [ ['SPY', 0.5] , ['VTI' , 0.3] , ['MSFT', 0.2] ]
 
-port_1 = Portfolio(portfolio_list)
-port_1.balance = 500100
-port_1.add_stock('SPY', 0.2)
-print(port_1.portfolio)
+    port_1 = Portfolio(portfolio_list)
+    port_1.balance = 500100
+    port_1.add_stock('SPY', 0.2)
+    print(port_1.portfolio)

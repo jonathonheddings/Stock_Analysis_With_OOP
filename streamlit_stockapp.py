@@ -100,7 +100,7 @@ st.title("Stock Analysis - " + str(stock.ticker))
 st.sidebar.title("Create Your Stock Report")
 graphs_multiselect = st.sidebar.multiselect(
     "Graph A Relationship",
-    ("Price/Time", "Weekly Returns", "Rolling Avg"))
+    ("Price/Time", "Rolling Avg"))
 
 show_df = st.sidebar.checkbox('Show dataframes')
 

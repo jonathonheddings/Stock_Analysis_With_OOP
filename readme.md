@@ -31,3 +31,5 @@ stock_class.py holds the Stock and Portfolio Object Classes and all their method
 fin_statements.py is a header file for the stock_class object file, that provides the financial statement webscraping for fundamental analysis
 
 FinancialFunctions.py is a header file for the stock_class object file that provides a variety of Finance functions that manipulate stock data, from weekly returns and graphing, to monte carlos and rolling averages.
+
+streamlit_stockapp.py is another work in progress web application for stock analysis with a sexy UI

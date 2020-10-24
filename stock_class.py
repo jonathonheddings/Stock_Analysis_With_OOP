@@ -1,7 +1,6 @@
 import timeit, json, datetime, math, random, datetime
 import pandas as pd
 import numpy as np
-from scipy.stats import norm
 import matplotlib.pyplot as plt
 from pandas_datareader import data as wb
 import FinanceFunctions as finance
@@ -23,6 +22,7 @@ class Stock():
 
         # Init ticker, beta, covariance with S&P, and daterange
         self.ticker = ticker
+        self.info = self.company_info()
         self.start_date = startdate
         self.end_date = enddate
         self.alpha = 0
@@ -109,6 +109,22 @@ class Stock():
             print(json.dumps(self.json_dict, indent=4))
         
         return self.json_dict
+    
+    
+    # Gets some Basic Company Information
+    #
+    def company_info(self):
+        import yfinance as yf
+    
+        stock = yf.Ticker(self.ticker)
+        summary = ['longName', 'sector', 'industry', 'city', 'state', 'country', 'website']
+        information = {'ticker': self.ticker}
+    
+        for info in summary:
+            try: information[info] = stock.info[info]
+            except: print('key missing: ', info)
+            
+        return information
     
     
     #  Plots different graphs of stock date using Matplotlib like:
@@ -410,3 +426,4 @@ if __name__ == "__main__":
     port_1.balance = 500100
     port_1.add_stock('SPY', 0.2)
     print(port_1.portfolio)
+

@@ -1,11 +1,10 @@
-pandas_datareader==0.8.1
-plotly==4.9.0
-numpy==1.18.3
-scipy==1.4.1
-pandas_market_calendars==1.4.0
+yfinance==0.1.54
 matplotlib==3.2.1
+pandas_market_calendars==1.4.0
 pandas==1.0.3
+plotly==4.9.0
+scipy==1.4.1
+numpy==1.18.3
+pandas_datareader==0.8.1
 streamlit==0.69.2
 beautifulsoup4==4.9.3
-MonteCarlo==0.1.17
-PyQt5==5.15.1

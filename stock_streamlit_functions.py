@@ -1,28 +1,49 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+import datetime
 import stock_class
 
-START, END = '2020-01-01', '2020-06-01'
+START, END = (datetime.date.today() - datetime.timedelta(days=30 * 6)).strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d')
 
 ## The following functions are defined for different modules that can be added and removed for tailor made reports
 ##
+
+def get_date_range(slider):
+    if slider == 'Max':
+        return '1970-01-01', datetime.date.today().strftime('%Y-%m-%d')
+    if slider.endswith('Y'):
+        return (datetime.date.today() - datetime.timedelta(days=(365 * int(slider[0])))).strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d')
+    if slider.endswith('M'):
+        return (datetime.date.today() - datetime.timedelta(days=30 * int(slider[0]))).strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d')
+    if slider == 'Week':
+        return (datetime.date.today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d')
+    
 def price_over_time(stock, start=START, end=END, show=True):
     
-    st.write(
+    
+    container = st.beta_container()
+    container.write(
         """ ## Historical Price Chart
         """)
+    
+    slider = st.select_slider("Date Range", 
+                             ["Max", "5Y", "3Y", "1Y", "6M", "3M", "1M", "Week"], value="6M")
+    
+    start, end = get_date_range(slider)
+    
+    stock.data(start, end)
     
     if stock.weekly_returns.empty:
         stock.get_rolling()
         
-    col1, col2 = st.beta_columns([7,1])
-
-    period = col2.radio(label='Trailing Avg', options=['5', '20', '30'], index=0)
-    chart_data = pd.merge(stock.data['Adj Close'], stock.rolling_avg[period], left_index=True, right_index=True)
+    col1, col2 = container.beta_columns([7,1])
+    col2.write(""" """)
+    period = col2.radio(label='Trailing Avg', options=['5D', '20D', '30D'], index=0)
+    chart_data = pd.merge(stock.data['Adj Close'], stock.rolling_avg[period[:-1]], left_index=True, right_index=True)
     col1.line_chart(chart_data)
     
-    col1.select_slider("Date Range (Currently Does Nothing)", ["Max", "5Y", "3Y", "1Y", "6M", "3M", "1M", "Week"], value="6M")
+    
     
     st.write("""Sample Text: This Stock has hit - lows and - highs during the - period
             The overall trend during this period has been positive/negative with a return of -%""")
@@ -31,15 +52,15 @@ def price_over_time(stock, start=START, end=END, show=True):
         st.write(stock.data.tail())
 
 
-def weekly_returns(stock, start=START, end=END, show=True):
+def portfolio_price(stock, start=START, end=END, show=True):
     
     st.write(
-        """ ## Weekly Returns
+        """ ## Price Over Time
         """)
-    st.line_chart(stock.get_returns())
+    st.line_chart(stock.data[['Open', 'High', 'Low', 'Close', 'Adj Close']])
 
     if show:
-        st.write(stock.weekly_returns.tail())
+        st.write(stock.data.tail())
 
 def show_graphs(graphs_multiselect, stock, show_df):
     

@@ -114,16 +114,30 @@ def plot_MonteCarlo(price_list):
 # Plot Price/Time
 def plot_price(price_list, ticker):
     
-    plt.style.use('seaborn-ticks')    
+    plt.style.use('seaborn-ticks')     
     plt.figure(figsize=(10,6))
     
     plt.title("Stock Price Over Time")
     plt.ylabel("Price of Stock ($)")
     plt.xlabel("Time (Trading Days)")
     
-    
     plt.plot(price_list)
     plt.legend([ticker], loc=4)
+    plt.show()
+ 
+# Plot Portfolio Returns   
+def plot_port_returns(returns, period):
+    
+    plt.style.use('seaborn-ticks')     
+    plt.figure(figsize=(10,6))
+    
+    plt.title(period + " Portfolio Returns")
+    plt.ylabel("Return of Stock (%)")
+    plt.xlabel("Date (" + period + ")")
+
+    plt.plot(returns)
+    plt.axhline(y=0,xmin=0,xmax=200,c="red",linewidth=1,zorder=0) 
+    plt.legend(['Portfolio'], loc=4)
     plt.show()
 
 #    Converts Y-M-D value to datetime object
@@ -163,12 +177,8 @@ def market_closed(date, nyse):
         return True
     
 # Calculate Weekly Stock Returns
-def get_weekly_returns(ticker, startdate, enddate):  
-    
-    # Pull Stock Data
-    stock_data = pd.DataFrame()
-    stock_data = wb.DataReader(ticker, data_source="yahoo", start=startdate, end=enddate)['Adj Close']
-    
+def get_weekly_returns(stock_, startdate, enddate):  
+
     # Initialize Variables For Weekly Return Loop
     week_begin = 0
     week_end = 0
@@ -180,10 +190,10 @@ def get_weekly_returns(ticker, startdate, enddate):
     x = []
     
     # Datetime dates and business day list
-    start_date = ymd_to_dt(stock_data.index[0].strftime('%Y-%m-%d'))
+    start_date = ymd_to_dt((stock_.data['Adj Close'].index[0]).strftime('%Y-%m-%d'))
     end_date = ymd_to_dt(enddate)
     nyse = get_business_days_list(startdate, enddate)
-        
+
     # Time Delta
     delta = datetime.timedelta(days=1)
 
@@ -194,19 +204,23 @@ def get_weekly_returns(ticker, startdate, enddate):
         #  Checks to see if the date is a Monday
         if datetime.datetime.weekday(start_date) == 0:   
             if market_closed(start_date.strftime('%Y-%m-%d'), nyse) and (first_week == 1):
-                week_begin = next_opened_date(stock_data, start_date, 2, nyse)                  
+                week_begin = next_opened_date(stock_.data['Adj Close'], start_date, 2, nyse)                  
             if not(market_closed(start_date.strftime('%Y-%m-%d'), nyse)): 
-                week_begin = stock_data[start_date]               
-                first_week = 1
+                try:
+                    
+                    week_begin = stock_.data['Adj Close'][start_date.strftime('%Y-%m-%d')]               
+                    first_week = 1
+                except:
+                    print('Error: ' + start_date.strftime('%Y-%m-%d'))
             if(start_date + (delta * 4)) <= end_date:
                 start_date += delta * 4
             
         
         if (first_week == 1) and (datetime.datetime.weekday(start_date) == 4):
             if market_closed(start_date.strftime('%Y-%m-%d'), nyse):
-                week_end = next_opened_date(stock_data, start_date, 0, nyse)            
+                week_end = next_opened_date(stock_.data['Adj Close'], start_date, 0, nyse)            
             else:
-                week_end = stock_data[start_date]             
+                week_end = stock_.data['Adj Close'][start_date.strftime('%Y-%m-%d')]             
             y.append((week_end - week_begin) / week_begin * 100)
             x.append(start_date.strftime('%Y-%m-%d'))
             
@@ -232,7 +246,7 @@ def get_weekly_returns(ticker, startdate, enddate):
     for i in range(0, len(returns_list[0])):
         rows.append([returns_list[0][i], returns_list[1][i]])
      
-    weekly_returns = pd.DataFrame(rows, columns=['date','returns'])
+    weekly_returns = pd.DataFrame(rows, columns=['Date','Returns'])
     
     return weekly_returns
 
@@ -247,8 +261,8 @@ def get_y_count(daterange, begin_range, end_range):
 #     Graph Weekly Return Data         
 def plot_weekly_returns(weekly_returns, ticker):
     
-    daterange = list(weekly_returns['date'])
-    graph_Data = list(weekly_returns['returns'])
+    daterange = list(weekly_returns.index)
+    graph_Data = list(weekly_returns['Returns'])
     max_value, min_value = int(max(graph_Data)), int(min(graph_Data))
     
     y_count = get_y_count(len(daterange), 0, 5)

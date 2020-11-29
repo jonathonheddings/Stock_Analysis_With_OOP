@@ -135,7 +135,7 @@ def get_cashflow(ticker):
 def get_valuation(ticker):
     
     # Pulls the reformatted webpage data and assigns it to a variable
-    url = 'https://finance.yahoo.com/quote/' + ticker + '/key-statistics?p=' + ticker    
+    url = 'https://finance.yahoo.com/quote/' + ticker + '/key-statistics?p=' + ticker  
     webpage = ur.urlopen(url).read() 
     soup = BeautifulSoup(webpage,'lxml')
     
@@ -148,7 +148,7 @@ def get_valuation(ticker):
     # Cleans out Empty rows, organizes data into rows, and returns the result for the numerical values in the table
     new_list = list(filter(None, sort_divs))
     new_list = new_list[:54]
-    table_data = list(zip(*[iter(new_list)]*6))
+    table_data = list(zip(*[iter(new_list)]*5))
     
     # Find all the indexes for the table of financial data
     sort_divs = []
@@ -172,14 +172,16 @@ def get_valuation(ticker):
         
     # Isolate the dates and categories
     isolated_data = sort_divs[slicer_begin:slicer_end]
-    dates = isolated_data[0:6]
+
+    dates = isolated_data[0:5]
     dates.insert(0, 'Quarterly')
-    categories = isolated_data[6:]
+    categories = isolated_data[5:]
     
     # Sew all three lists together
     final_list = []
     final_list.append(dates)
-    for i in range(0, len(table_data)):
+    
+    for i in range(0, len(table_data)-1):
         row = list(table_data[i])
         row.insert(0, categories[i])
         final_list.append(row)

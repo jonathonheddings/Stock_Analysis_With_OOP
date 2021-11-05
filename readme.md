@@ -2,6 +2,8 @@
 
 This is a package made up of Stock and Portfolio Objects, that give you access to many stock data manipulating functions, making technical and fundamental analysis a breeze. It is a work in progress.
 
+Check out the file: stock.ipynb to see a Python Notebook with some examples
+
 ------
 
 ## So Far For Stocks It Includes:
